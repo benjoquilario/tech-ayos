@@ -1,0 +1,80 @@
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  emailVerified DateTime?
+  username      String?  @unique
+  password      String 
+  firstName     String
+  lastName      String
+  phoneNumber   String?   @unique
+  profilePicture String?  
+  role           UserRole @default(CUSTOMER)
+  status         UserStatus @default(ACTIVE)
+
+  isEmailVerified Boolean @default(false)
+  isPhoneVerified Boolean @default(false)
+  isTwoFactorEnabled Boolean @default(false)
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  // relationships
+  accounts       Account[]
+  sessions      Session[]
+
+  addresses         Address[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+}
+
+// enums
+enum UserRole {
+  CUSTOMER      // Device owners posting repair requests
+  SHOP_OWNER    // Repair shop owners
+  TECHNICIAN    // Individual technicians
+  ADMIN         // Platform administrators
+}
+
+// User account status
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
+}
