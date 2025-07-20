@@ -1,5 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
-npm run type-check
-npm run build
+pnpm run type-check
+pnpm run build
